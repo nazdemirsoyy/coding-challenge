@@ -24,7 +24,7 @@ import { CameraView, Camera } from "expo-camera";
 export default (props: StackScreenProps<StackParamList, "Camera">) => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   // To avoid duplicate scanning
-  const hasScannedRef = useRef(false); // Use useRef to track the scanned state, useRef updates immediately.
+  const hasScannedRef = useRef(false); // Use useRef to track the scanned state, useRef updates immediately and it's does not re-render.
   
   const dispatch = useDispatch();
 
@@ -47,9 +47,7 @@ export default (props: StackScreenProps<StackParamList, "Camera">) => {
           hasScannedRef.current = false; // Reset the ref after a successful API call
         })
       );
-      setTimeout(() => {
-        hasScannedRef.current = false;
-      }, 3000); 
+      
     }
   };
 

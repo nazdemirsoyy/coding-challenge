@@ -2,8 +2,6 @@
 *   because FlatList renders only the items visible on the screen and it loads new data when the user scrolls
 */
 
-
-
 import React, { useState, useCallback } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
