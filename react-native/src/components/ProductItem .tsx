@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+/** Bonus/Performance: Instead of ScrollView  we should use FlatList, 
+*   because FlatList renders only the items visible on the screen and it loads new data when the user scrolls
+*/
+
+
+
+import React, { useState, useCallback } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 import dayjs from 'dayjs'; // For current day check for New Tag and formatting "Posted" date in the API call
 
-{/*LayoutAnimation for Android*/}
+
+{/*LayoutAnimation for Android bc for IOS it does not need special configuraration*/}
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -15,9 +23,11 @@ interface ProductItemProps {
   categories: string[];
 }
 
-const ProductItem: React.FC<ProductItemProps> = ({ name, date, image, categories }) => {
+const ProductItem: React.FC<ProductItemProps> =  React.memo(({ name, date, image, categories }) => {
   const [expanded, setExpanded] = useState(false);
-
+  {/*Tried to implement React.memo bc I received the log below. Ref: https://react.dev/reference/react/memo*/}
+  {/*LOG  VirtualizedList: You have a large list that is slow to update - make sure your renderItem function renders components that follow React performance best practices like PureComponent, shouldComponentUpdate, etc. {"contentLength": 13404.1904296875, "dt": 804, "prevDt": 502}*/}
+  
   {/*New Tag Check*/}
   const isNew = dayjs().diff(dayjs(date), 'day') <= 7;
 
@@ -68,25 +78,38 @@ const ProductItem: React.FC<ProductItemProps> = ({ name, date, image, categories
       )}
     </View>
   );
-};
+}, (prevProps, nextProps) => {
+    // Only re-render if name, date, image, or categories change
+    return prevProps.name === nextProps.name &&
+           prevProps.date === nextProps.date &&
+           prevProps.image === nextProps.image &&
+           JSON.stringify(prevProps.categories) === JSON.stringify(nextProps.categories);
+  });
 
 const styles = StyleSheet.create({
   container: {
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    borderRadius: 8,
+    borderRadius: 4,
     marginBottom: 16,
-    padding: 12,
+    padding: 8,
+    backgroundColor:'#F8F9FC',
+    gap:12,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+   row: {
+    flexDirection: 'row',
+  },
   image: {
-    width: 70,
+    width: 85,
     height: 70,
-    borderRadius: 8,
-    marginRight: 12,
+    marginLeft: 8,
+    marginTop: 8,
+    resizeMode: 'contain',
+
   },
   info: {
     flex: 1,
@@ -94,19 +117,31 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 20,
     fontWeight: 'bold',
+    fontFamily: 'Roboto',
+    color:'#1B2633',
+    marginLeft:5,
   },
   date: {
     fontSize: 14,
     color: '#000',
+    
   },
   newBadge: {
-    backgroundColor: '#000',  
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,  
+    backgroundColor: '#333333',  
+    borderTopLeftRadius: 9,
+    borderBottomLeftRadius: 9, 
+    borderBottomRightRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
+    width:53,
+    height:26,
+    paddingTop:6,
+    paddingRight:12,
+    paddingBottom:6,
+    paddingLeft:12,
+    
+
   },
   newText: {
     color: '#fff',  
@@ -121,16 +156,18 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   tag: {
-    backgroundColor: '#e0f0ff', 
+    backgroundColor: '#D4E5FF', 
     paddingVertical: 4,
     paddingHorizontal: 12,
-    borderRadius: 20,
+    borderRadius: 48,
     marginRight: 6,
     marginBottom: 6,
   },
   tagText: {
     fontSize: 16,
     color: '#000',
+    textAlign:'center',
+    fontWeight:'400',
   },
 });
 

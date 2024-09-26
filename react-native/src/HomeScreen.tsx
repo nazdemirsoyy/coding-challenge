@@ -1,9 +1,10 @@
-// Bonus/Performance: Instead of ScrollView  we should use FlatList, 
-// because FlatList renders only the items visible on the screen.
+/** Bonus/Performance: Instead of ScrollView  we should use FlatList, 
+*   because FlatList renders only the items visible on the screen.
+*/
 
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { RefreshControl, ScrollView, StyleSheet, View , FlatList } from "react-native";
 import { Appbar, FAB } from "react-native-paper";
 import { useSelector, useDispatch } from "react-redux";
@@ -31,11 +32,11 @@ export default (props: StackScreenProps<StackParamList, "Home">) => {
   const keyExtractor = (item: any) => item.id;
 
   {/* precompute Item layout for Flatlist */}
-  const getItemLayout = (data: any, index: number) => ({
+  const getItemLayout = useCallback((data: any, index: number) => ({
     length: 150,
     offset: 150 * index,
     index,
-  });
+  }), []);
 
   const renderItem = ({ item }: { item: any }) => (
     <ProductItem
@@ -46,10 +47,14 @@ export default (props: StackScreenProps<StackParamList, "Home">) => {
     />
   );
 
+  const onRefresh = useCallback(() => {
+    dispatch(actions.fetchInventory());
+  }, [dispatch])
+
   return (
     <View style={{ flex: 1 }}>
       <Appbar.Header>
-        <Appbar.Content title="Inventory" />
+        <Appbar.Content title="Inventory" style={{alignItems: "center"}}/>
       </Appbar.Header>
       {/* <ScrollView
         style={{ flex: 1 }}
@@ -81,7 +86,7 @@ export default (props: StackScreenProps<StackParamList, "Home">) => {
               refreshControl={
                 <RefreshControl
                   refreshing={fetching}
-                  onRefresh={() => dispatch(actions.fetchInventory())}
+                  onRefresh={onRefresh}
                 />
               }
               initialNumToRender={10}  // Render initial 10 items for fast initial load
